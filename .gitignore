@@ -1,0 +1,19 @@
+backend/.env
+backend/visitor_leads.sqlite3
+.env
+.venv/
+__pycache__/
+*.py[cod]
+github/
+
+# Terraform local data and secrets
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+override.tf
+*_override.tf
+.terraformrc
+terraform.rc

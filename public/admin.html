@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0A0C0E">
+    <title>Owner dashboard — Subham Das</title>
+    <link rel="stylesheet" href="styles.css?v=conversation-archive">
+    <script src="admin.js?v=conversation-archive" defer></script>
+  </head>
+  <body>
+    <main class="admin-page">
+      <a class="nav-mark" href="/" aria-label="Subham Das, home">SD<span>.</span></a>
+      <header class="admin-heading">
+        <span class="section-kicker">PRIVATE OWNER DASHBOARD</span>
+        <h1>Owner dashboard.</h1>
+      </header>
+      <form class="admin-login" id="admin-login">
+        <label for="admin-password">Dashboard password
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="button button-primary" type="submit">Sign in</button>
+      </form>
+      <button class="button button-outline admin-logout" id="admin-logout" type="button" hidden>Sign out</button>
+      <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
+      <section id="admin-submissions" aria-label="Consented contact submissions"></section>
+      <section class="admin-conversations-section" aria-labelledby="admin-conversations-title">
+        <header class="admin-conversations-heading">
+          <h2 id="admin-conversations-title">Archived conversations.</h2>
+          <p>Saved by session ID and kept indefinitely. Up to 200 most recently active sessions are shown.</p>
+        </header>
+        <div id="admin-conversations"></div>
+      </section>
+    </main>
+  </body>
+</html>

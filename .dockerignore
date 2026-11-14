@@ -1,0 +1,19 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+.env
+**/.env
+**/.env.*
+backend/.env
+backend/visitor_leads.sqlite3
+infra/
+tests/
+.github/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+my image.png
