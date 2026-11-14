@@ -2,6 +2,20 @@ const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+async function readJsonResponse(response) {
+  try {
+    return await response.json();
+  } catch {
+    const status = Number.isInteger(response.status) ? ` (HTTP ${response.status})` : "";
+    const message = response.status >= 500
+      ? `The server encountered an error${status}. Check the Vercel Function logs.`
+      : `The server returned an invalid response${status}.`;
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+}
+
 function updatePortal() {
   const track = document.querySelector(".portal-track");
   const stage = document.querySelector(".portal-stage");
@@ -271,7 +285,7 @@ function resetConversationView() {
 async function initializeConversationSession(reset = false) {
   setChatInputEnabled(false);
   const response = await fetch("/api/conversations/session", { cache: "no-store" });
-  const result = await response.json();
+  const result = await readJsonResponse(response);
   if (!response.ok || typeof result.session_id !== "string" || typeof result.server_instance_id !== "string") {
     throw new Error(result.error || "A new conversation session could not be started.");
   }
@@ -293,7 +307,7 @@ async function archiveConversationMessages(messages) {
       body: JSON.stringify({ server_instance_id: serverInstanceId, messages }),
     },
   );
-  const result = await response.json();
+  const result = await readJsonResponse(response);
   if (!response.ok) {
     const error = new Error(result.error || "This conversation could not be archived.");
     error.status = response.status;
@@ -321,7 +335,7 @@ async function checkServerInstance() {
   if (!sessionReady) return;
   try {
     const response = await fetch("/api/server-instance", { cache: "no-store" });
-    const result = await response.json();
+    const result = await readJsonResponse(response);
     if (response.ok && result.server_instance_id !== serverInstanceId) {
       await startNewConversation("The server restarted. This is a fresh conversation.");
     }
@@ -435,7 +449,7 @@ chatForm?.addEventListener("submit", async (event) => {
           .map(({ role, content }) => ({ role, content })),
       }),
     });
-    const result = await response.json();
+    const result = await readJsonResponse(response);
     if (submittedSessionId !== conversationSessionId) return;
     if (!response.ok) {
       const error = new Error(result.error || "The chat is temporarily unavailable.");
@@ -471,7 +485,7 @@ async function loadGithubProjects() {
   if (!githubStatus || !githubProjectList) return;
   try {
     const response = await fetch("/api/projects");
-    const result = await response.json();
+    const result = await readJsonResponse(response);
     if (!response.ok) throw new Error(result.error || "GitHub projects could not be loaded.");
     if (!result.configured) {
       githubStatus.textContent = "GitHub projects are not configured yet.";
@@ -539,7 +553,7 @@ leadForm?.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const result = await response.json();
+    const result = await readJsonResponse(response);
     if (!response.ok) throw new Error(result.error || "Your details could not be sent.");
     leadForm.reset();
     leadStatus.textContent = result.message;

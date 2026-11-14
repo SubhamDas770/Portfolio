@@ -62,7 +62,7 @@ class FakeElement {
   focus() {}
 }
 
-async function createChat() {
+async function createChat({ sessionError = false, chatError = false } = {}) {
   const form = new FakeElement();
   const submitButton = new FakeElement();
   form.submitButton = submitButton;
@@ -121,8 +121,10 @@ async function createChat() {
       if (url === "/api/conversations/session") {
         nextSession += 1;
         return {
-          ok: true,
+          ok: !sessionError,
+          status: sessionError ? 500 : 200,
           async json() {
+            if (sessionError) throw new SyntaxError("Unexpected token");
             return {
               session_id: `session-${nextSession}`,
               server_instance_id: serverInstanceId,
@@ -144,8 +146,10 @@ async function createChat() {
       }
       if (url === "/api/chat") {
         return {
-          ok: true,
+          ok: !chatError,
+          status: chatError ? 500 : 200,
           async json() {
+            if (chatError) throw new SyntaxError("Unexpected token");
             return { reply: "Here is an answer." };
           },
         };
@@ -192,6 +196,19 @@ async function createChat() {
     },
   };
 }
+
+test("non-JSON session errors show the Vercel status instead of a JSON parse exception", async () => {
+  const chat = await createChat({ sessionError: true });
+
+  assert.match(chat.status.textContent, /server encountered an error \(HTTP 500\)/i);
+  assert.match(chat.status.textContent, /Vercel Function logs/);
+});
+
+test("non-JSON chat errors show the Vercel status instead of a JSON parse exception", async () => {
+  const failedChat = await createChat({ chatError: true });
+  await failedChat.submit("Tell me about your RAG work.");
+  assert.match(failedChat.visibleReplies().at(-1), /server encountered an error \(HTTP 500\)/i);
+});
 
 test("each page load gets a fresh session and archived intro details stay out of chat context", async () => {
   const firstVisit = await createChat();

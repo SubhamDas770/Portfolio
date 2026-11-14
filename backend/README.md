@@ -89,8 +89,9 @@ after the visitor explicitly submits its consent form.
 
 ## Vercel deployment
 
-The Python entrypoint is configured as `backend.server:app` and dependencies
-are installed from the root `requirements.txt`. Vercel serves the static
+The Python entrypoint is configured as `backend.server:app`; runtime
+dependencies are declared in the root `pyproject.toml` and mirrored in
+`requirements.txt` for local and Docker installs. Vercel serves the static
 `public/` files and runs API requests as serverless Functions. Production
 requires Postgres; SQLite is only for local development.
 
