@@ -125,10 +125,12 @@ credentials to preview environments unless their writes to production are
 intended.
 
 `vercel.json` schedules cleanup daily and refreshes the GitHub project cache
-every two days. The project list is also refreshed when the backend starts;
-local development runs a two-day background refresh, and requests after the
-two-day cache expires trigger a refresh as well. The Vercel scheduled refresh
-uses the `CRON_SECRET` bearer token.
+every two days. On Vercel, projects are fetched when `/api/projects` is
+requested rather than delaying server startup; the scheduled refresh warms the
+cache every two days. Local development refreshes the list when the backend
+starts and in the background every two days. Requests after the cache expires
+also trigger a refresh. The Vercel scheduled refresh uses the `CRON_SECRET`
+bearer token.
 
 Vercel Hobby, Neon Free, and other providers have usage limits and may pause or
 reject requests after quotas are reached. Free-tier availability and pricing

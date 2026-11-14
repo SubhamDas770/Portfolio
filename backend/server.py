@@ -84,13 +84,15 @@ _admin_password_file_value: str | None = None
 @asynccontextmanager
 async def app_lifespan(_: FastAPI) -> AsyncIterator[None]:
     refresh_task: asyncio.Task[None] | None = None
-    if os.environ.get("GITHUB_USERNAME", "").strip():
+    if (
+        os.environ.get("VERCEL") != "1"
+        and os.environ.get("GITHUB_USERNAME", "").strip()
+    ):
         try:
             await asyncio.to_thread(load_github_projects, force_refresh=True)
         except (HTTPError, URLError, TimeoutError, OSError, ValueError, json.JSONDecodeError):
             logging.exception("GitHub project data could not be refreshed at startup.")
-        if os.environ.get("VERCEL") != "1":
-            refresh_task = asyncio.create_task(refresh_github_projects_periodically())
+        refresh_task = asyncio.create_task(refresh_github_projects_periodically())
     try:
         yield
     finally:

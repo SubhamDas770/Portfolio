@@ -720,7 +720,10 @@ class PortfolioAPITests(unittest.TestCase):
         self.assertEqual(response.json(), {"configured": False, "projects": []})
 
     def test_startup_forces_a_github_project_refresh(self) -> None:
-        with patch.dict(os.environ, {"GITHUB_USERNAME": "SubhamDas770"}):
+        with patch.dict(
+            os.environ,
+            {"GITHUB_USERNAME": "SubhamDas770", "VERCEL": ""},
+        ):
             with patch("backend.server.load_github_projects", return_value=[]) as refresh:
                 async def run_lifespan() -> None:
                     async with server.app_lifespan(app):
@@ -728,6 +731,19 @@ class PortfolioAPITests(unittest.TestCase):
 
                 asyncio.run(run_lifespan())
         refresh.assert_called_once_with(force_refresh=True)
+
+    def test_vercel_startup_does_not_wait_for_github_project_refresh(self) -> None:
+        with patch.dict(
+            os.environ,
+            {"GITHUB_USERNAME": "SubhamDas770", "VERCEL": "1"},
+        ):
+            with patch("backend.server.load_github_projects") as refresh:
+                async def run_lifespan() -> None:
+                    async with server.app_lifespan(app):
+                        pass
+
+                asyncio.run(run_lifespan())
+        refresh.assert_not_called()
 
     def test_github_refresh_cron_requires_auth_and_forces_refresh(self) -> None:
         with patch.dict(
